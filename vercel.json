@@ -1,30 +1,37 @@
 {
   "version": 2,
-  "builds": [
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node@3"
+    },
+    "api/test.ts": {
+      "runtime": "@vercel/node@3"
+    },
+    "api/minimal.js": {
+      "runtime": "@vercel/node@3"
+    }
+  },
+  "routes": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "src": "/api/minimal",
+      "dest": "/api/minimal.js"
     },
     {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
+      "src": "/api/test",
+      "dest": "/api/test.ts"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "dist/$1"
+      "dest": "/dist/$1"
     }
   ],
   "installCommand": "npm install",
   "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "env": {
     "NODE_ENV": "production"
   }
