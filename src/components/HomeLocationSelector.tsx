@@ -92,14 +92,14 @@ export const HomeLocationSelector: React.FC<HomeLocationSelectorProps> = ({
     const suggestions: string[] = [];
     
     // If input looks like a city name without country, suggest adding country
-    if (!input.includes(',') && input.length > 2 && validation.warnings?.some(w => w.includes('City, Country'))) {
+    if (!input.includes(',') && input.length > 2 && validation.warnings?.some((w: string) => w.includes('City, Country'))) {
       suggestions.push(`${input}, United States`);
       suggestions.push(`${input}, United Kingdom`);
       suggestions.push(`${input}, Canada`);
     }
     
     // If input has formatting issues, suggest corrections
-    if (validation.warnings?.some(w => w.includes('capitalization'))) {
+    if (validation.warnings?.some((w: string) => w.includes('capitalization'))) {
       const parts = input.split(',').map(part => 
         part.trim().split(' ').map(word => 
           word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -213,7 +213,7 @@ export const HomeLocationSelector: React.FC<HomeLocationSelectorProps> = ({
                   ✓ Location format is valid
                   {state.validation.warnings && state.validation.warnings.length > 0 && (
                     <div className="warnings">
-                      {state.validation.warnings.map((warning, index) => (
+                      {state.validation.warnings.map((warning: string, index: number) => (
                         <div key={index} className="warning">⚠ {warning}</div>
                       ))}
                     </div>
@@ -221,7 +221,7 @@ export const HomeLocationSelector: React.FC<HomeLocationSelectorProps> = ({
                 </div>
               ) : (
                 <div className="error-messages">
-                  {state.validation.errors.map((error, index) => (
+                  {state.validation.errors.map((error: string, index: number) => (
                     <div key={index} className="error">✗ {error}</div>
                   ))}
                 </div>

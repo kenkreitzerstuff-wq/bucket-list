@@ -60,7 +60,7 @@ const BucketItemCard: React.FC<BucketItemCardProps> = ({
   };
 
   const handleRemoveExperience = (index: number) => {
-    const newExperiences = (editedItem.experiences || []).filter((_, i) => i !== index);
+    const newExperiences = (editedItem.experiences || []).filter((_: string, i: number) => i !== index);
     setEditedItem({ ...editedItem, experiences: newExperiences });
   };
 
@@ -134,7 +134,7 @@ const BucketItemCard: React.FC<BucketItemCardProps> = ({
             <div className="form-group">
               <label>Experiences:</label>
               <div className="experiences-list">
-                {(editedItem.experiences || []).map((experience, index) => (
+                {(editedItem.experiences || []).map((experience: string, index: number) => (
                   <div key={index} className="experience-input-group">
                     <input
                       type="text"
@@ -241,7 +241,7 @@ const BucketItemCard: React.FC<BucketItemCardProps> = ({
             <div className="experiences-section">
               <h4>Planned Experiences:</h4>
               <div className="experiences-grid">
-                {item.experiences.map((experience, index) => (
+                {item.experiences.map((experience: string, index: number) => (
                   <span key={index} className="experience-tag">
                     {experience}
                   </span>
@@ -325,7 +325,7 @@ const BucketListManager: React.FC<BucketListManagerProps> = ({
     const bucketItem: BucketItem = {
       id: `custom-${Date.now()}`,
       destination: newItem.destination,
-      experiences: newItem.experiences.filter(exp => exp.trim() !== ''),
+      experiences: newItem.experiences.filter((exp: string) => exp.trim() !== ''),
       estimatedDuration: newItem.estimatedDuration || 7,
       costEstimate: {
         min: 1000,
@@ -361,7 +361,7 @@ const BucketListManager: React.FC<BucketListManagerProps> = ({
   };
 
   const handleRemoveNewExperience = (index: number) => {
-    const newExperiences = (newItem.experiences || []).filter((_, i) => i !== index);
+    const newExperiences = (newItem.experiences || []).filter((_: string, i: number) => i !== index);
     setNewItem({ ...newItem, experiences: newExperiences });
   };
 
@@ -473,7 +473,7 @@ const BucketListManager: React.FC<BucketListManagerProps> = ({
             <div className="form-group">
               <label>Experiences:</label>
               <div className="experiences-list">
-                {(newItem.experiences || []).map((experience, index) => (
+                {(newItem.experiences || []).map((experience: string, index: number) => (
                   <div key={index} className="experience-input-group">
                     <input
                       type="text"

@@ -130,7 +130,7 @@ const RecommendationItem: React.FC<RecommendationItemProps> = ({
         </div>
 
         <div className="recommendation-tags">
-          {recommendation.relatedTo.map((tag, index) => (
+          {recommendation.relatedTo.map((tag: string, index: number) => (
             <span key={index} className="related-tag">
               {tag}
             </span>

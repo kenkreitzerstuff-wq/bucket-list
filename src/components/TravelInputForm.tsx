@@ -168,7 +168,7 @@ export const TravelInputForm: React.FC<TravelInputFormProps> = ({
       preferences: {
         ...prev.preferences,
         interests: prev.preferences.interests?.includes(interest)
-          ? prev.preferences.interests.filter(i => i !== interest)
+          ? prev.preferences.interests.filter((i: string) => i !== interest)
           : [...(prev.preferences.interests || []), interest]
       }
     }));

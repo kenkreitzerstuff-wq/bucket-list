@@ -149,7 +149,7 @@ export const InputValidationFeedback: React.FC<InputValidationFeedbackProps> = (
               Issues to Fix
             </h5>
             <ul className="validation-list">
-              {state.validation.errors.map((error, index) => (
+              {state.validation.errors.map((error: string, index: number) => (
                 <li key={index} className="validation-item error">
                   {error}
                 </li>
@@ -166,7 +166,7 @@ export const InputValidationFeedback: React.FC<InputValidationFeedbackProps> = (
               Suggestions
             </h5>
             <ul className="validation-list">
-              {state.validation.warnings.map((warning, index) => (
+              {state.validation.warnings.map((warning: string, index: number) => (
                 <li key={index} className="validation-item warning">
                   {warning}
                 </li>
