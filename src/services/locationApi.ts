@@ -1,7 +1,11 @@
 import axios from 'axios';
 import { LocationData, ValidationResult, ApiResponse } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (
+  import.meta.env.PROD 
+    ? '/api'  // In production, use relative path to same domain
+    : 'http://localhost:3001/api'  // In development, use localhost
+);
 
 // Create axios instance with default config
 const apiClient = axios.create({
