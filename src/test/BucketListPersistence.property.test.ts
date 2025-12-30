@@ -38,8 +38,8 @@ describe('Bucket List Persistence Property Tests', () => {
     estimatedDuration: fc.integer({ min: 1, max: 365 }),
     costEstimate: costRangeArb,
     priority: fc.integer({ min: 1, max: 5 }),
-    status: fc.constantFrom('planned', 'booked', 'completed'),
-    notes: fc.option(fc.string({ maxLength: 500 }))
+    status: fc.constantFrom('planned', 'booked', 'completed') as fc.Arbitrary<'planned' | 'booked' | 'completed'>,
+    notes: fc.option(fc.string({ maxLength: 500 }), { nil: undefined })
   });
 
   const bucketListArb = fc.array(bucketItemArb, { minLength: 0, maxLength: 20 })
@@ -238,11 +238,11 @@ describe('Bucket List Persistence Property Tests', () => {
    * Property: Export/Import round-trip consistency
    * Data exported and then imported should remain identical
    */
-  test('Property: Export/Import round-trip consistency', () => {
-    fc.assert(
-      fc.property(
+  test('Property: Export/Import round-trip consistency', async () => {
+    await fc.assert(
+      fc.asyncProperty(
         bucketListArb,
-        (originalList) => {
+        async (originalList) => {
           fc.pre(originalList.length > 0); // Only test non-empty lists for export
           
           // Save original list
@@ -270,21 +270,20 @@ describe('Bucket List Persistence Property Tests', () => {
           expect(BucketListApi.loadBucketList()).toHaveLength(0);
           
           // Import the data
-          return BucketListApi.importFromJSON(mockFile).then(importResult => {
-            expect(importResult.success).toBe(true);
-            
-            // Verify imported data matches original
-            const importedList = BucketListApi.loadBucketList();
-            expect(importedList).toEqual(originalList);
-            
-            // Verify all items are present and correct
-            expect(importedList).toHaveLength(originalList.length);
-            
-            for (const originalItem of originalList) {
-              const importedItem = importedList.find(item => item.id === originalItem.id);
-              expect(importedItem).toEqual(originalItem);
-            }
-          });
+          const importResult = await BucketListApi.importFromJSON(mockFile);
+          expect(importResult.success).toBe(true);
+          
+          // Verify imported data matches original
+          const importedList = BucketListApi.loadBucketList();
+          expect(importedList).toEqual(originalList);
+          
+          // Verify all items are present and correct
+          expect(importedList).toHaveLength(originalList.length);
+          
+          for (const originalItem of originalList) {
+            const importedItem = importedList.find(item => item.id === originalItem.id);
+            expect(importedItem).toEqual(originalItem);
+          }
         }
       ),
       { numRuns: 50 } // Fewer runs due to async nature

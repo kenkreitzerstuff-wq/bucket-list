@@ -1,6 +1,19 @@
 // Re-export shared types for frontend use
 export * from '../../../shared/types';
 
+// Import shared types for use in frontend-specific interfaces
+import {
+  UserProfile,
+  LocationData,
+  BucketItem,
+  Recommendation,
+  CostEstimate,
+  TravelInputData,
+  FollowUpQuestion,
+  ProgressState,
+  SystemError
+} from '../../../shared/types';
+
 // Frontend-specific types
 export interface ComponentProps {
   className?: string;
@@ -49,8 +62,6 @@ export interface HomeLocationSelectorProps extends ComponentProps {
   onValidationError: (error: string) => void;
 }
 
-// Form data types - removed duplicate TravelInputData, using shared types instead
-
 // UI State types
 export interface AppState {
   user: UserProfile | null;
@@ -61,17 +72,3 @@ export interface AppState {
   errors: SystemError[];
   isLoading: boolean;
 }
-
-// Import shared types for convenience
-import {
-  UserProfile,
-  LocationData,
-  BucketItem,
-  Recommendation,
-  CostEstimate,
-  TravelPreferences,
-  TravelInputData,
-  FollowUpQuestion,
-  ProgressState,
-  SystemError
-} from '../../../shared/types';

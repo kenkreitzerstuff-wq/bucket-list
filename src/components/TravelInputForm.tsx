@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TravelInputData, TravelPreferences, ValidationResult } from '../types';
+import { TravelInputData, TravelPreferences } from '../types';
 import './TravelInputForm.css';
 
 interface TravelInputFormProps {
@@ -16,7 +16,9 @@ interface FormState {
   timeframe: {
     startDate?: Date;
     endDate?: Date;
-    flexibility: 'fixed' | 'flexible' | 'very-flexible';
+    flexibility: 'flexible' | 'fixed' | 'seasonal' | 'very-flexible';
+    preferredMonths?: number[] | string[];
+    duration?: number;
   };
   currentStep: number;
   errors: { [key: string]: string };
@@ -485,6 +487,19 @@ export const TravelInputForm: React.FC<TravelInputFormProps> = ({
             <div className="radio-content">
               <div className="radio-title">Flexible</div>
               <div className="radio-description">I can adjust dates by a few weeks</div>
+            </div>
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="flexibility"
+              value="seasonal"
+              checked={state.timeframe.flexibility === 'seasonal'}
+              onChange={(e) => updateTimeframe({ flexibility: e.target.value as any })}
+            />
+            <div className="radio-content">
+              <div className="radio-title">Seasonal</div>
+              <div className="radio-description">I prefer specific seasons or months</div>
             </div>
           </label>
           <label className="radio-option">

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { HomeLocationSelector } from './components/HomeLocationSelector';
 import { TravelInputForm } from './components/TravelInputForm';
 import { FollowUpQuestions } from './components/FollowUpQuestions';
 import { InputValidationFeedback } from './components/InputValidationFeedback';
 import { ProgressIndicator, ProgressStep } from './components/ProgressIndicator';
-import { LoadingIndicator, PageLoadingIndicator, ApiLoadingIndicator } from './components/LoadingIndicator';
+import { PageLoadingIndicator, ApiLoadingIndicator } from './components/LoadingIndicator';
 import RecommendationDisplay from './components/RecommendationDisplay';
 import BucketListManager from './components/BucketListManager';
 import { LocationData, TravelInputData, ValidationResult, UserProfile, Recommendation, BucketItem, CostEstimate } from './types';
@@ -20,11 +20,10 @@ function App() {
   const [currentStep, setCurrentStep] = useState<AppStep>('home-location');
   const [homeLocation, setHomeLocation] = useState<LocationData | undefined>();
   const [travelInput, setTravelInput] = useState<TravelInputData | undefined>();
-  const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [completenessScore, setCompletenessScore] = useState<number>(0);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [bucketList, setBucketList] = useState<BucketItem[]>([]);
-  const [costEstimates, setCostEstimates] = useState<{ [itemId: string]: CostEstimate }>({});
+  const [costEstimates] = useState<{ [itemId: string]: CostEstimate }>({});
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -287,8 +286,8 @@ function App() {
     }
   };
 
-  const handleValidationChange = (newValidation: ValidationResult, score: number) => {
-    setValidation(newValidation);
+  const handleValidationChange = (_newValidation: ValidationResult, score: number) => {
+    // Store validation results for potential future use
     setCompletenessScore(score);
   };
 
@@ -431,7 +430,6 @@ function App() {
   const resetToTravelInput = () => {
     setCurrentStep('travel-input');
     setTravelInput(undefined);
-    setValidation(null);
     setCompletenessScore(0);
   };
 
@@ -439,7 +437,6 @@ function App() {
     setCurrentStep('home-location');
     setHomeLocation(undefined);
     setTravelInput(undefined);
-    setValidation(null);
     setCompletenessScore(0);
   };
 

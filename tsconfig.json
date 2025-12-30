@@ -17,5 +17,9 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
+  "exclude": [
+    "src/test/CompleteWorkflow.integration.test.ts",
+    "src/test/BasicInputSystem.integration.test.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { LocationData } from '../types';
 

@@ -282,7 +282,7 @@ export const HomeLocationSelector: React.FC<HomeLocationSelectorProps> = ({
               !state.input.trim() || 
               state.isValidating || 
               state.isParsing || 
-              (state.validation && !state.validation.isValid)
+              (state.validation ? !state.validation.isValid : false)
             }
           >
             {state.isParsing ? (

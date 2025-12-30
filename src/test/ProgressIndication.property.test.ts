@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { ProgressIndicator, ProgressStep } from '../components/ProgressIndicator';
 import React from 'react';
 
@@ -11,20 +11,20 @@ import React from 'react';
  */
 
 // Generators for property-based testing
-const stepStatusArbitrary = fc.constantFrom('pending', 'active', 'completed', 'error');
+const stepStatusArbitrary = fc.constantFrom('pending', 'active', 'completed', 'error') as fc.Arbitrary<'pending' | 'active' | 'completed' | 'error'>;
 
 const progressStepArbitrary = fc.record({
   id: fc.string({ minLength: 1, maxLength: 20 }),
   title: fc.string({ minLength: 1, maxLength: 50 }),
-  description: fc.option(fc.string({ minLength: 1, maxLength: 100 })),
+  description: fc.option(fc.string({ minLength: 1, maxLength: 100 }), { nil: undefined }),
   status: stepStatusArbitrary,
-  isOptional: fc.option(fc.boolean())
+  isOptional: fc.option(fc.boolean(), { nil: undefined })
 });
 
 const progressStepsArbitrary = fc.array(progressStepArbitrary, { minLength: 1, maxLength: 10 });
 
-const variantArbitrary = fc.constantFrom('horizontal', 'vertical');
-const sizeArbitrary = fc.constantFrom('small', 'medium', 'large');
+const variantArbitrary = fc.constantFrom('horizontal', 'vertical') as fc.Arbitrary<'horizontal' | 'vertical'>;
+const sizeArbitrary = fc.constantFrom('small', 'medium', 'large') as fc.Arbitrary<'small' | 'medium' | 'large'>;
 
 describe('Progress Indication Property Tests', () => {
   /**

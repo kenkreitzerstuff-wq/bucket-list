@@ -12,16 +12,14 @@ describe('API Integration Tests', () => {
   const testUserId = 'api-integration-test-user';
   
   // Mock fetch for controlled testing
-  const originalFetch = global.fetch;
   let mockFetch: any;
 
   beforeEach(() => {
     mockFetch = vi.fn();
-    global.fetch = mockFetch;
+    (globalThis as any).fetch = mockFetch;
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
     vi.restoreAllMocks();
   });
 
@@ -55,13 +53,13 @@ describe('API Integration Tests', () => {
       });
 
       const validation = await locationApi.validateLocation('San Francisco, CA');
-      expect(validation.isValid).toBe(true);
-      expect(validation.normalizedLocation).toBe('San Francisco, California, United States');
+      expect(validation.validation.isValid).toBe(true);
+      expect(validation.normalized).toBe('San Francisco, California, United States');
 
-      const locationData = await locationApi.parseLocation('San Francisco, CA');
-      expect(locationData.city).toBe('San Francisco');
-      expect(locationData.country).toBe('United States');
-      expect(locationData.coordinates).toEqual({ lat: 37.7749, lng: -122.4194 });
+      const parseResponse = await locationApi.parseLocation('San Francisco, CA');
+      expect(parseResponse.locationData.city).toBe('San Francisco');
+      expect(parseResponse.locationData.country).toBe('United States');
+      expect(parseResponse.locationData.coordinates).toEqual({ lat: 37.7749, lng: -122.4194 });
     });
 
     test('Handles location API errors gracefully', async () => {
@@ -159,7 +157,7 @@ describe('API Integration Tests', () => {
       });
 
       const validation = await travelInputApi.validateTravelInput(travelInput);
-      expect(validation.isValid).toBe(true);
+      expect(validation.validation.isValid).toBe(true);
       expect(validation.completenessScore).toBe(85);
 
       const storeResult = await travelInputApi.storeTravelInput(testUserId, travelInput);
@@ -213,7 +211,7 @@ describe('API Integration Tests', () => {
         experiences: ['Flamenco shows', 'Tapas tours'],
         preferences: {
           budgetRange: { min: 1500, max: 3500, currency: 'EUR' },
-          travelStyle: 'cultural',
+          travelStyle: 'adventure',
           interests: ['art', 'food', 'music'],
           travelDuration: 'short',
           groupSize: 2
@@ -524,8 +522,8 @@ describe('API Integration Tests', () => {
       const results = await Promise.all(promises);
       expect(results).toHaveLength(concurrentRequests);
       results.forEach((result, index) => {
-        expect(result.isValid).toBe(true);
-        expect(result.normalizedLocation).toBe(`Location ${index}`);
+        expect(result.validation.isValid).toBe(true);
+        expect(result.normalized).toBe(`Location ${index}`);
       });
     });
 

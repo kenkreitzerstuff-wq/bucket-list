@@ -1,9 +1,9 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { LocationService, UserProfileStorage } from '../../../backend/src/services/LocationService';
 import { TravelInputService } from '../../../backend/src/services/TravelInputService';
 import { RecommendationEngine } from '../../../backend/src/services/RecommendationEngine';
 import { BucketListApi } from '../services/bucketListApi';
-import { TravelInputData, UserProfile, BucketItem, Recommendation } from '../types';
+import { TravelInputData, UserProfile, BucketItem } from '../types';
 
 /**
  * Integration tests for the complete travel bucket list workflow
@@ -340,8 +340,10 @@ describe('Complete Workflow Integration Tests', () => {
 
     // Mock window.location.search for the test
     const originalLocation = window.location;
-    delete (window as any).location;
-    window.location = { ...originalLocation, search: `?shared=${sharedParam}` };
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, search: `?shared=${sharedParam}` },
+      writable: true
+    });
 
     const loadedItems = BucketListApi.loadFromShareableLink();
     expect(loadedItems).toBeDefined();
@@ -355,7 +357,10 @@ describe('Complete Workflow Integration Tests', () => {
     });
 
     // Restore original location
-    window.location = originalLocation;
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true
+    });
   });
 
   test('Recommendation quality and relevance', async () => {
@@ -510,7 +515,7 @@ const sessionStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(global, 'sessionStorage', {
+Object.defineProperty(window, 'sessionStorage', {
   value: sessionStorageMock
 });
 
@@ -526,7 +531,7 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(global, 'localStorage', {
+Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 });
 
