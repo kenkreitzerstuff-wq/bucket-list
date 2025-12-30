@@ -1,0 +1,479 @@
+.recommendation-display {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.recommendation-display.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading-spinner {
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.recommendation-display.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #666;
+}
+
+.empty-state h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Header Styles */
+.recommendations-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.recommendations-header h2 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.recommendations-subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.recommendations-controls {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.filter-controls,
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-controls label,
+.sort-controls label {
+  font-weight: 500;
+  color: #555;
+}
+
+.filter-select,
+.sort-select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.filter-select:hover,
+.sort-select:hover,
+.filter-select:focus,
+.sort-select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Stats Styles */
+.recommendations-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  min-width: 120px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Recommendations List */
+.recommendations-list {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+/* Recommendation Item Styles */
+.recommendation-item {
+  background: white;
+  border: 2px solid #e1e8ed;
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.recommendation-item:hover {
+  border-color: #007bff;
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.recommendation-item.destination {
+  border-left: 4px solid #28a745;
+}
+
+.recommendation-item.experience {
+  border-left: 4px solid #fd7e14;
+}
+
+.recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.recommendation-type-badge {
+  background: #f8f9fa;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #495057;
+  text-transform: capitalize;
+}
+
+.confidence-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.confidence-badge.high {
+  background: #28a745;
+}
+
+.confidence-badge.medium {
+  background: #ffc107;
+  color: #212529;
+}
+
+.confidence-badge.low {
+  background: #dc3545;
+}
+
+/* Content Styles */
+.recommendation-content {
+  margin-bottom: 1.5rem;
+}
+
+.recommendation-title {
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.recommendation-description {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.recommendation-metadata {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.metadata-item {
+  background: #f8f9fa;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.recommendation-tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.related-tag {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Details Section */
+.recommendation-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e1e8ed;
+}
+
+.reasoning-section h4 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.reasoning-text {
+  color: #666;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* Modification Form */
+.modification-form {
+  margin-bottom: 1rem;
+}
+
+.modify-title-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s ease;
+}
+
+.modify-description-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s ease;
+}
+
+.modify-title-input:focus,
+.modify-description-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.modification-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.save-modifications {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.save-modifications:hover {
+  background: #218838;
+}
+
+.cancel-modifications {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-modifications:hover {
+  background: #5a6268;
+}
+
+/* Action Buttons */
+.recommendation-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.recommendation-actions button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.expand-button {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.expand-button:hover {
+  background: #e9ecef;
+}
+
+.modify-button {
+  background: #17a2b8;
+  color: white;
+}
+
+.modify-button:hover {
+  background: #138496;
+}
+
+.reject-button {
+  background: #dc3545;
+  color: white;
+}
+
+.reject-button:hover {
+  background: #c82333;
+}
+
+.accept-button {
+  background: #28a745;
+  color: white;
+}
+
+.accept-button:hover {
+  background: #218838;
+}
+
+/* No Results */
+.no-filtered-results {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .recommendation-display {
+    padding: 1rem;
+  }
+  
+  .recommendations-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .recommendations-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .recommendations-stats {
+    gap: 1rem;
+  }
+  
+  .stat-item {
+    min-width: 100px;
+    padding: 0.75rem;
+  }
+  
+  .recommendation-actions {
+    justify-content: center;
+  }
+  
+  .recommendation-actions button {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .metadata-item {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .recommendations-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .recommendations-subtitle {
+    font-size: 1rem;
+  }
+  
+  .recommendation-item {
+    padding: 1rem;
+  }
+  
+  .recommendation-title {
+    font-size: 1.1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+}

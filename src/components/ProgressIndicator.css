@@ -1,0 +1,413 @@
+/* Progress Indicator Base Styles */
+.progress-indicator {
+  width: 100%;
+  margin: 1rem 0;
+}
+
+/* Progress Bar (Horizontal variant) */
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #646cff, #51cf66);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* Progress Steps Container */
+.progress-steps {
+  display: flex;
+  position: relative;
+}
+
+.progress-indicator--horizontal .progress-steps {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.progress-indicator--vertical .progress-steps {
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Individual Progress Step */
+.progress-step {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.progress-indicator--horizontal .progress-step {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  max-width: 200px;
+}
+
+.progress-indicator--vertical .progress-step {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Step Icon */
+.progress-step__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+/* Size variants for step icon */
+.progress-indicator--small .progress-step__icon {
+  width: 24px;
+  height: 24px;
+  font-size: 0.75rem;
+}
+
+.progress-indicator--medium .progress-step__icon {
+  width: 32px;
+  height: 32px;
+  font-size: 0.875rem;
+}
+
+.progress-indicator--large .progress-step__icon {
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+}
+
+.progress-step__icon-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Step Status Styles */
+.progress-step--pending .progress-step__icon {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.progress-step--active .progress-step__icon {
+  background: rgba(100, 108, 255, 0.2);
+  color: #646cff;
+  border: 2px solid #646cff;
+  box-shadow: 0 0 0 4px rgba(100, 108, 255, 0.1);
+}
+
+.progress-step--completed .progress-step__icon {
+  background: rgba(81, 207, 102, 0.2);
+  color: #51cf66;
+  border: 2px solid #51cf66;
+}
+
+.progress-step--error .progress-step__icon {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border: 2px solid #ff6b6b;
+}
+
+/* Step Content */
+.progress-step__content {
+  margin-top: 0.75rem;
+  min-height: 2rem;
+}
+
+.progress-indicator--vertical .progress-step__content {
+  margin-top: 0;
+  flex: 1;
+}
+
+.progress-step__title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.progress-indicator--horizontal .progress-step__title {
+  justify-content: center;
+}
+
+/* Size variants for step title */
+.progress-indicator--small .progress-step__title {
+  font-size: 0.8rem;
+}
+
+.progress-indicator--medium .progress-step__title {
+  font-size: 0.9rem;
+}
+
+.progress-indicator--large .progress-step__title {
+  font-size: 1rem;
+}
+
+/* Step title colors based on status */
+.progress-step--pending .progress-step__title {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.progress-step--active .progress-step__title {
+  color: #646cff;
+}
+
+.progress-step--completed .progress-step__title {
+  color: #51cf66;
+}
+
+.progress-step--error .progress-step__title {
+  color: #ff6b6b;
+}
+
+/* Optional badge */
+.progress-step__optional-badge {
+  background: rgba(255, 193, 61, 0.2);
+  color: #ffd93d;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 193, 61, 0.3);
+}
+
+/* Step description */
+.progress-step__description {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+  margin-top: 0.25rem;
+}
+
+.progress-indicator--small .progress-step__description {
+  font-size: 0.75rem;
+}
+
+.progress-indicator--medium .progress-step__description {
+  font-size: 0.8rem;
+}
+
+.progress-indicator--large .progress-step__description {
+  font-size: 0.875rem;
+}
+
+/* Loading indicator for active step */
+.progress-step__loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.progress-step__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(100, 108, 255, 0.3);
+  border-top: 2px solid #646cff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.progress-step__loading-text {
+  color: #646cff;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Step connector (vertical variant) */
+.progress-step__connector {
+  position: absolute;
+  left: 15px;
+  top: -1.5rem;
+  width: 2px;
+  height: 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 1;
+}
+
+.progress-indicator--small .progress-step__connector {
+  left: 11px;
+}
+
+.progress-indicator--large .progress-step__connector {
+  left: 19px;
+}
+
+/* Completed connector */
+.progress-step--completed .progress-step__connector {
+  background: #51cf66;
+}
+
+/* Progress Summary */
+.progress-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-summary__text {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.progress-summary__percentage {
+  color: #646cff;
+  font-weight: 600;
+}
+
+.progress-indicator--small .progress-summary {
+  font-size: 0.8rem;
+}
+
+.progress-indicator--large .progress-summary {
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .progress-indicator--horizontal {
+    /* Switch to vertical layout on mobile */
+  }
+  
+  .progress-indicator--horizontal .progress-steps {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .progress-indicator--horizontal .progress-step {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+    max-width: none;
+    gap: 1rem;
+  }
+  
+  .progress-indicator--horizontal .progress-step__content {
+    margin-top: 0;
+    flex: 1;
+  }
+  
+  .progress-indicator--horizontal .progress-step__title {
+    justify-content: flex-start;
+  }
+  
+  .progress-bar {
+    margin-bottom: 1rem;
+  }
+  
+  .progress-summary {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .progress-step__title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .progress-indicator--horizontal .progress-step__title {
+    align-items: flex-start;
+  }
+  
+  .progress-step__optional-badge {
+    align-self: flex-start;
+  }
+}
+
+/* Light mode adjustments */
+@media (prefers-color-scheme: light) {
+  .progress-bar {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  
+  .progress-step--pending .progress-step__icon {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.5);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .progress-step--pending .progress-step__title {
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .progress-step__description {
+    color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .progress-summary__text {
+    color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .progress-summary {
+    border-top-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .progress-step__connector {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .progress-step__icon {
+    border-width: 3px;
+  }
+  
+  .progress-step--active .progress-step__icon {
+    box-shadow: 0 0 0 6px rgba(100, 108, 255, 0.2);
+  }
+  
+  .progress-bar__fill {
+    background: #646cff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .progress-step,
+  .progress-step__icon,
+  .progress-bar__fill {
+    transition: none;
+  }
+  
+  .progress-step__spinner {
+    animation: none;
+  }
+  
+  .progress-step__spinner::after {
+    content: "⏳";
+    display: block;
+    text-align: center;
+    line-height: 16px;
+  }
+}
