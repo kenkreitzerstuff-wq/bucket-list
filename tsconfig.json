@@ -16,7 +16,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "api"],
   "exclude": [
     "src/test/CompleteWorkflow.integration.test.ts",
     "src/test/BasicInputSystem.integration.test.ts"

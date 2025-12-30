@@ -1,5 +1,5 @@
-// Minimal JavaScript API function to test if the issue is with TypeScript
-module.exports = (req, res) => {
+// Minimal JavaScript API function using ES module syntax
+export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   
   if (req.method === 'OPTIONS') {
@@ -23,4 +23,4 @@ module.exports = (req, res) => {
       error: error.message
     });
   }
-};
+}
