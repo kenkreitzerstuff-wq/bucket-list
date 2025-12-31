@@ -38,96 +38,58 @@ class LocationService {
     return { isValid: true, errors, warnings };
   }
 
-  public static normalizeLocation(input: string): string {
+  public static async parseLocationData(input: string): Promise<LocationData> {
     const trimmed = input.trim();
     
     if (this.AIRPORT_CODE_REGEX.test(trimmed.toUpperCase())) {
-      return trimmed.toUpperCase();
+      const code = trimmed.toUpperCase();
+      const mockAirportData: { [key: string]: LocationData } = {
+        'LAX': {
+          city: 'Los Angeles',
+          country: 'United States',
+          coordinates: { lat: 33.9425, lng: -118.4081 },
+          airportCode: 'LAX'
+        },
+        'JFK': {
+          city: 'New York',
+          country: 'United States',
+          coordinates: { lat: 40.6413, lng: -73.7781 },
+          airportCode: 'JFK'
+        },
+        'LHR': {
+          city: 'London',
+          country: 'United Kingdom',
+          coordinates: { lat: 51.4700, lng: -0.4543 },
+          airportCode: 'LHR'
+        }
+      };
+
+      if (mockAirportData[code]) {
+        return mockAirportData[code];
+      }
+
+      return {
+        city: 'Unknown City',
+        country: 'Unknown Country',
+        coordinates: { lat: 0, lng: 0 },
+        airportCode: code
+      };
     }
 
     if (trimmed.includes(',')) {
-      const parts = trimmed.split(',').map(part => 
-        part.trim()
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ')
-      );
-      return parts.join(', ');
-    }
-
-    return trimmed
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  }
-
-  public static async parseLocationData(input: string): Promise<LocationData> {
-    const normalized = this.normalizeLocation(input);
-    
-    if (this.AIRPORT_CODE_REGEX.test(normalized)) {
-      return this.parseAirportCode(normalized);
-    }
-
-    if (normalized.includes(',')) {
-      const [city, country] = normalized.split(',').map(s => s.trim());
-      return this.parseCityCountry(city, country);
-    }
-
-    return this.parseSingleLocation(normalized);
-  }
-
-  private static async parseAirportCode(code: string): Promise<LocationData> {
-    const mockAirportData: { [key: string]: LocationData } = {
-      'LAX': {
-        city: 'Los Angeles',
-        country: 'United States',
-        coordinates: { lat: 33.9425, lng: -118.4081 },
-        airportCode: 'LAX'
-      },
-      'JFK': {
-        city: 'New York',
-        country: 'United States',
-        coordinates: { lat: 40.6413, lng: -73.7781 },
-        airportCode: 'JFK'
-      },
-      'LHR': {
-        city: 'London',
-        country: 'United Kingdom',
-        coordinates: { lat: 51.4700, lng: -0.4543 },
-        airportCode: 'LHR'
-      }
-    };
-
-    if (mockAirportData[code]) {
-      return mockAirportData[code];
+      const [city, country] = trimmed.split(',').map(s => s.trim());
+      return {
+        city,
+        country,
+        coordinates: this.getMockCoordinates(city, country),
+        airportCode: undefined
+      };
     }
 
     return {
-      city: 'Unknown City',
+      city: trimmed,
       country: 'Unknown Country',
-      coordinates: { lat: 0, lng: 0 },
-      airportCode: code
-    };
-  }
-
-  private static async parseCityCountry(city: string, country: string): Promise<LocationData> {
-    const mockCoordinates = this.getMockCoordinates(city, country);
-    
-    return {
-      city,
-      country,
-      coordinates: mockCoordinates,
-      airportCode: this.guessAirportCode(city, country)
-    };
-  }
-
-  private static async parseSingleLocation(location: string): Promise<LocationData> {
-    const mockCoordinates = this.getMockCoordinates(location, 'Unknown');
-    
-    return {
-      city: location,
-      country: 'Unknown Country',
-      coordinates: mockCoordinates
+      coordinates: this.getMockCoordinates(trimmed, 'Unknown')
     };
   }
 
@@ -142,20 +104,11 @@ class LocationService {
     
     return { lat: Math.round(lat * 10000) / 10000, lng: Math.round(lng * 10000) / 10000 };
   }
-
-  private static guessAirportCode(city: string, country: string): string | undefined {
-    const cityCode = city.substring(0, 3).toUpperCase();
-    const knownCodes = ['LAX', 'JFK', 'LHR', 'CDG', 'NRT', 'SYD'];
-    
-    if (knownCodes.includes(cityCode)) {
-      return cityCode;
-    }
-    
-    return undefined;
-  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('Location parse API called:', req.method, req.url);
+  
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');

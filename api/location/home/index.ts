@@ -1,0 +1,172 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+interface LocationData {
+  city: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  airportCode?: string | null;
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    code: string;
+    details?: any;
+  };
+}
+
+// In-memory storage for demo
+const userProfiles: { [userId: string]: any } = {};
+
+class LocationService {
+  public static validateLocation(input: string): ValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    if (!input || input.trim().length === 0) {
+      errors.push('Location input cannot be empty');
+      return { isValid: false, errors, warnings };
+    }
+
+    return { isValid: true, errors, warnings };
+  }
+
+  public static async parseLocationData(input: string): Promise<LocationData> {
+    const trimmed = input.trim();
+    
+    if (trimmed.includes(',')) {
+      const [city, country] = trimmed.split(',').map(s => s.trim());
+      return {
+        city,
+        country,
+        coordinates: this.getMockCoordinates(city, country),
+        airportCode: undefined
+      };
+    }
+
+    return {
+      city: trimmed,
+      country: 'Unknown Country',
+      coordinates: this.getMockCoordinates(trimmed, 'Unknown')
+    };
+  }
+
+  private static getMockCoordinates(city: string, country: string): { lat: number; lng: number } {
+    const hash = (city + country).split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    
+    const lat = (hash % 180) - 90;
+    const lng = ((hash * 2) % 360) - 180;
+    
+    return { lat: Math.round(lat * 10000) / 10000, lng: Math.round(lng * 10000) / 10000 };
+  }
+}
+
+class UserProfileStorage {
+  public static storeHomeLocation(userId: string, location: LocationData): void {
+    if (!userProfiles[userId]) {
+      userProfiles[userId] = {
+        id: userId,
+        homeLocation: null,
+        preferences: {},
+        bucketList: []
+      };
+    }
+    userProfiles[userId].homeLocation = location;
+  }
+
+  public static getHomeLocation(userId: string): LocationData | null {
+    const profile = userProfiles[userId];
+    return profile?.homeLocation || null;
+  }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('Location home API called:', req.method, req.url);
+  
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      success: false,
+      error: {
+        message: 'Method not allowed - use POST',
+        code: 'METHOD_NOT_ALLOWED'
+      }
+    } as ApiResponse<never>);
+  }
+
+  try {
+    const { userId, location } = req.body;
+
+    if (!userId || typeof userId !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'User ID is required and must be a string',
+          code: 'INVALID_USER_ID'
+        }
+      } as ApiResponse<never>);
+    }
+
+    if (!location || typeof location !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Location input is required and must be a string',
+          code: 'INVALID_INPUT'
+        }
+      } as ApiResponse<never>);
+    }
+
+    const validation = LocationService.validateLocation(location);
+    if (!validation.isValid) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid location format',
+          code: 'INVALID_LOCATION',
+          details: validation.errors
+        }
+      } as ApiResponse<never>);
+    }
+
+    const locationData: LocationData = await LocationService.parseLocationData(location);
+    UserProfileStorage.storeHomeLocation(userId, locationData);
+    
+    return res.json({
+      success: true,
+      data: {
+        homeLocation: locationData,
+        message: 'Home location updated successfully'
+      }
+    } as ApiResponse<{ homeLocation: LocationData; message: string }>);
+
+  } catch (error) {
+    console.error('Home location API error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Internal server error',
+        code: 'INTERNAL_ERROR'
+      }
+    } as ApiResponse<never>);
+  }
+}

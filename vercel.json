@@ -17,32 +17,10 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
-    {
-      "source": "/api/location/validate",
-      "destination": "/api/location-validate"
-    },
-    {
-      "source": "/api/location/parse",
-      "destination": "/api/location-parse"
-    },
-    {
-      "source": "/api/location/home",
-      "destination": "/api/location-home"
-    },
-    {
-      "source": "/api/location/home/(.*)",
-      "destination": "/api/location-home/$1"
-    }
-  ],
   "routes": [
     {
-      "src": "/api/health",
-      "dest": "/api/health"
-    },
-    {
       "src": "/api/(.*)",
-      "dest": "/api/index"
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
