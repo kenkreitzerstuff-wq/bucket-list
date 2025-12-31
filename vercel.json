@@ -7,13 +7,12 @@
       "config": {
         "distDir": "dist"
       }
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
-  "functions": {
-    "api/*.js": {
-      "runtime": "@vercel/node@18.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/location/validate",
