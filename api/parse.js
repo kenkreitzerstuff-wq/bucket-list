@@ -1,34 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-interface LocationData {
-  city: string;
-  country: string;
-  coordinates: { lat: number; lng: number };
-  airportCode?: string | null;
-}
-
-interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    code: string;
-    details?: any;
-  };
-}
-
 class LocationService {
-  private static readonly AIRPORT_CODE_REGEX = /^[A-Z]{3}$/;
+  static AIRPORT_CODE_REGEX = /^[A-Z]{3}$/;
 
-  public static validateLocation(input: string): ValidationResult {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  static validateLocation(input) {
+    const errors = [];
+    const warnings = [];
 
     if (!input || input.trim().length === 0) {
       errors.push('Location input cannot be empty');
@@ -38,12 +13,12 @@ class LocationService {
     return { isValid: true, errors, warnings };
   }
 
-  public static async parseLocationData(input: string): Promise<LocationData> {
+  static async parseLocationData(input) {
     const trimmed = input.trim();
     
     if (this.AIRPORT_CODE_REGEX.test(trimmed.toUpperCase())) {
       const code = trimmed.toUpperCase();
-      const mockAirportData: { [key: string]: LocationData } = {
+      const mockAirportData = {
         'LAX': {
           city: 'Los Angeles',
           country: 'United States',
@@ -93,7 +68,7 @@ class LocationService {
     };
   }
 
-  private static getMockCoordinates(city: string, country: string): { lat: number; lng: number } {
+  static getMockCoordinates(city, country) {
     const hash = (city + country).split('').reduce((a, b) => {
       a = ((a << 5) - a) + b.charCodeAt(0);
       return a & a;
@@ -106,7 +81,7 @@ class LocationService {
   }
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req, res) {
   console.log('Parse API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -125,11 +100,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Method not allowed',
         code: 'METHOD_NOT_ALLOWED'
       }
-    } as ApiResponse<never>);
+    });
   }
 
   try {
-    const { location } = req.body;
+    const { location } = req.body || {};
 
     if (!location || typeof location !== 'string') {
       return res.status(400).json({
@@ -138,7 +113,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           message: 'Location input is required and must be a string',
           code: 'INVALID_INPUT'
         }
-      } as ApiResponse<never>);
+      });
     }
 
     const validation = LocationService.validateLocation(location);
@@ -150,10 +125,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           code: 'INVALID_LOCATION',
           details: validation.errors
         }
-      } as ApiResponse<never>);
+      });
     }
 
-    const locationData: LocationData = await LocationService.parseLocationData(location);
+    const locationData = await LocationService.parseLocationData(location);
     
     res.json({
       success: true,
@@ -161,7 +136,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         locationData,
         validation
       }
-    } as ApiResponse<{ locationData: LocationData; validation: ValidationResult }>);
+    });
 
   } catch (error) {
     console.error('Location parsing error:', error);
@@ -171,6 +146,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Internal server error during location parsing',
         code: 'PARSING_ERROR'
       }
-    } as ApiResponse<never>);
+    });
   }
 }

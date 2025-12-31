@@ -1,27 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    code: string;
-    details?: any;
-  };
-}
-
 class LocationService {
-  private static readonly AIRPORT_CODE_REGEX = /^[A-Z]{3}$/;
+  static AIRPORT_CODE_REGEX = /^[A-Z]{3}$/;
 
-  public static validateLocation(input: string): ValidationResult {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  static validateLocation(input) {
+    const errors = [];
+    const warnings = [];
 
     if (!input || input.trim().length === 0) {
       errors.push('Location input cannot be empty');
@@ -66,7 +48,7 @@ class LocationService {
     };
   }
 
-  public static normalizeLocation(input: string): string {
+  static normalizeLocation(input) {
     const trimmed = input.trim();
     
     if (this.AIRPORT_CODE_REGEX.test(trimmed.toUpperCase())) {
@@ -90,7 +72,7 @@ class LocationService {
   }
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = function handler(req, res) {
   console.log('Validate API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -109,11 +91,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Method not allowed',
         code: 'METHOD_NOT_ALLOWED'
       }
-    } as ApiResponse<never>);
+    });
   }
 
   try {
-    const { location } = req.body;
+    const { location } = req.body || {};
 
     if (!location || typeof location !== 'string') {
       return res.status(400).json({
@@ -122,10 +104,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           message: 'Location input is required and must be a string',
           code: 'INVALID_INPUT'
         }
-      } as ApiResponse<never>);
+      });
     }
 
-    const validation: ValidationResult = LocationService.validateLocation(location);
+    const validation = LocationService.validateLocation(location);
     
     res.json({
       success: true,
@@ -133,7 +115,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         validation,
         normalized: validation.isValid ? LocationService.normalizeLocation(location) : null
       }
-    } as ApiResponse<{ validation: ValidationResult; normalized: string | null }>);
+    });
 
   } catch (error) {
     console.error('Location validation error:', error);
@@ -143,6 +125,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Internal server error during location validation',
         code: 'VALIDATION_ERROR'
       }
-    } as ApiResponse<never>);
+    });
   }
 }

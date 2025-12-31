@@ -19,8 +19,12 @@
   ],
   "rewrites": [
     {
+      "source": "/api/health",
+      "destination": "/api/health"
+    },
+    {
       "source": "/api/location/validate",
-      "destination": "/api/simple-validate"
+      "destination": "/api/validate"
     },
     {
       "source": "/api/location/parse",

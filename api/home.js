@@ -1,35 +1,10 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-interface LocationData {
-  city: string;
-  country: string;
-  coordinates: { lat: number; lng: number };
-  airportCode?: string | null;
-}
-
-interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    code: string;
-    details?: any;
-  };
-}
-
 // In-memory storage for demo
-const userProfiles: { [userId: string]: any } = {};
+const userProfiles = {};
 
 class LocationService {
-  public static validateLocation(input: string): ValidationResult {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  static validateLocation(input) {
+    const errors = [];
+    const warnings = [];
 
     if (!input || input.trim().length === 0) {
       errors.push('Location input cannot be empty');
@@ -39,7 +14,7 @@ class LocationService {
     return { isValid: true, errors, warnings };
   }
 
-  public static async parseLocationData(input: string): Promise<LocationData> {
+  static async parseLocationData(input) {
     const trimmed = input.trim();
     
     if (trimmed.includes(',')) {
@@ -59,7 +34,7 @@ class LocationService {
     };
   }
 
-  private static getMockCoordinates(city: string, country: string): { lat: number; lng: number } {
+  static getMockCoordinates(city, country) {
     const hash = (city + country).split('').reduce((a, b) => {
       a = ((a << 5) - a) + b.charCodeAt(0);
       return a & a;
@@ -73,7 +48,7 @@ class LocationService {
 }
 
 class UserProfileStorage {
-  public static storeHomeLocation(userId: string, location: LocationData): void {
+  static storeHomeLocation(userId, location) {
     if (!userProfiles[userId]) {
       userProfiles[userId] = {
         id: userId,
@@ -85,13 +60,13 @@ class UserProfileStorage {
     userProfiles[userId].homeLocation = location;
   }
 
-  public static getHomeLocation(userId: string): LocationData | null {
+  static getHomeLocation(userId) {
     const profile = userProfiles[userId];
     return profile?.homeLocation || null;
   }
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req, res) {
   console.log('Home API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -116,14 +91,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             message: 'User ID is required in URL path',
             code: 'INVALID_USER_ID'
           }
-        } as ApiResponse<never>);
+        });
       }
 
       const homeLocation = UserProfileStorage.getHomeLocation(userId);
       
       if (!homeLocation) {
         // Return a default location for demo purposes
-        const defaultLocation: LocationData = {
+        const defaultLocation = {
           city: 'San Francisco',
           country: 'United States',
           coordinates: { lat: 37.7749, lng: -122.4194 },
@@ -133,18 +108,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json({
           success: true,
           data: { homeLocation: defaultLocation }
-        } as ApiResponse<{ homeLocation: LocationData }>);
+        });
       }
 
       return res.json({
         success: true,
         data: { homeLocation }
-      } as ApiResponse<{ homeLocation: LocationData }>);
+      });
     }
 
     // Handle POST /api/home
     if (req.method === 'POST') {
-      const { userId, location } = req.body;
+      const { userId, location } = req.body || {};
 
       if (!userId || typeof userId !== 'string') {
         return res.status(400).json({
@@ -153,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             message: 'User ID is required and must be a string',
             code: 'INVALID_USER_ID'
           }
-        } as ApiResponse<never>);
+        });
       }
 
       if (!location || typeof location !== 'string') {
@@ -163,7 +138,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             message: 'Location input is required and must be a string',
             code: 'INVALID_INPUT'
           }
-        } as ApiResponse<never>);
+        });
       }
 
       const validation = LocationService.validateLocation(location);
@@ -175,10 +150,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             code: 'INVALID_LOCATION',
             details: validation.errors
           }
-        } as ApiResponse<never>);
+        });
       }
 
-      const locationData: LocationData = await LocationService.parseLocationData(location);
+      const locationData = await LocationService.parseLocationData(location);
       UserProfileStorage.storeHomeLocation(userId, locationData);
       
       return res.json({
@@ -187,7 +162,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           homeLocation: locationData,
           message: 'Home location updated successfully'
         }
-      } as ApiResponse<{ homeLocation: LocationData; message: string }>);
+      });
     }
 
     return res.status(405).json({
@@ -196,7 +171,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Method not allowed',
         code: 'METHOD_NOT_ALLOWED'
       }
-    } as ApiResponse<never>);
+    });
 
   } catch (error) {
     console.error('Home location API error:', error);
@@ -206,6 +181,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         message: 'Internal server error',
         code: 'INTERNAL_ERROR'
       }
-    } as ApiResponse<never>);
+    });
   }
 }
