@@ -81,7 +81,7 @@ class LocationService {
   }
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   console.log('Parse API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');

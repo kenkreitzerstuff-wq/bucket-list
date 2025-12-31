@@ -1,8 +1,8 @@
 // In-memory storage for demo
 const travelInputs = {};
 
-module.exports = (req, res) => {
-  console.log('Travel Input API called:', req.method, req.url);
+export default function handler(req, res) {
+  console.log('Travel Input Store API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
@@ -14,7 +14,7 @@ module.exports = (req, res) => {
   }
 
   try {
-    // Handle POST /api/travel-input (store travel input)
+    // Handle POST /api/travel-input/store (store travel input)
     if (req.method === 'POST') {
       const { userId, travelInput } = req.body || {};
 
@@ -54,39 +54,6 @@ module.exports = (req, res) => {
       });
     }
 
-    // Handle GET /api/travel-input/{userId} (retrieve travel input)
-    if (req.method === 'GET') {
-      const { url } = req;
-      const userId = url?.split('/').pop();
-
-      if (!userId || userId === 'travel-input') {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'User ID is required in URL path',
-            code: 'INVALID_USER_ID'
-          }
-        });
-      }
-
-      const storedInput = travelInputs[userId];
-      
-      if (!storedInput) {
-        return res.status(404).json({
-          success: false,
-          error: {
-            message: 'No travel input found for this user',
-            code: 'NOT_FOUND'
-          }
-        });
-      }
-
-      return res.json({
-        success: true,
-        data: { travelInput: storedInput }
-      });
-    }
-
     return res.status(405).json({
       success: false,
       error: {
@@ -96,7 +63,7 @@ module.exports = (req, res) => {
     });
 
   } catch (error) {
-    console.error('Travel input API error:', error);
+    console.error('Travel input store API error:', error);
     res.status(500).json({
       success: false,
       error: {
