@@ -19,24 +19,12 @@
   ],
   "routes": [
     {
+      "src": "/api/location/(.*)",
+      "dest": "/api/location"
+    },
+    {
       "src": "/api/health",
       "dest": "/api/health"
-    },
-    {
-      "src": "/api/location/home/([^/]+)",
-      "dest": "/api/location/home/[userId]?userId=$1"
-    },
-    {
-      "src": "/api/location/validate",
-      "dest": "/api/location/validate"
-    },
-    {
-      "src": "/api/location/parse",
-      "dest": "/api/location/parse"
-    },
-    {
-      "src": "/api/location/home",
-      "dest": "/api/location/home"
     },
     {
       "src": "/api/(.*)",

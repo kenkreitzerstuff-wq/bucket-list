@@ -1,10 +1,33 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { LocationData, ValidationResult, ApiResponse } from '../types';
 
-// In-memory storage for demo (in production, use a database)
+// Types
+interface LocationData {
+  city: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  airportCode?: string | null;
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    code: string;
+    details?: any;
+  };
+}
+
+// In-memory storage for demo
 const userProfiles: { [userId: string]: any } = {};
 
-// Simplified LocationService for serverless function
+// Simplified LocationService
 class LocationService {
   private static readonly AIRPORT_CODE_REGEX = /^[A-Z]{3}$/;
   private static readonly POSTAL_CODE_PATTERNS = {
@@ -110,43 +133,6 @@ class LocationService {
     };
   }
 
-  public static async parseLocationData(input: string): Promise<LocationData> {
-    try {
-      const normalized = this.normalizeLocation(input);
-      
-      if (this.AIRPORT_CODE_REGEX.test(normalized)) {
-        return this.parseAirportCode(normalized);
-      }
-
-      if (normalized.includes(',')) {
-        const [city, country] = normalized.split(',').map(s => s.trim());
-        return this.parseCityCountry(city, country);
-      }
-
-      return this.parseSingleLocation(normalized);
-    } catch (error) {
-      const errorDetails = {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        input: {
-          original: input,
-          normalized: this.normalizeLocation(input),
-          length: input?.length || 0,
-          hasComma: input?.includes(',') || false,
-          isAirportCode: this.AIRPORT_CODE_REGEX.test(input?.toUpperCase() || '')
-        },
-        timestamp: new Date().toISOString(),
-        service: 'LocationService.parseLocationData'
-      };
-      
-      console.error('Detailed error parsing location data:', errorDetails);
-      
-      const enhancedError = new Error(`Failed to parse location data for "${input}": ${errorDetails.message}`);
-      (enhancedError as any).details = errorDetails;
-      (enhancedError as any).statusCode = 500;
-      throw enhancedError;
-    }
-  }
-
   public static normalizeLocation(input: string): string {
     const trimmed = input.trim();
     
@@ -168,6 +154,21 @@ class LocationService {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
+  }
+
+  public static async parseLocationData(input: string): Promise<LocationData> {
+    const normalized = this.normalizeLocation(input);
+    
+    if (this.AIRPORT_CODE_REGEX.test(normalized)) {
+      return this.parseAirportCode(normalized);
+    }
+
+    if (normalized.includes(',')) {
+      const [city, country] = normalized.split(',').map(s => s.trim());
+      return this.parseCityCountry(city, country);
+    }
+
+    return this.parseSingleLocation(normalized);
   }
 
   private static async parseAirportCode(code: string): Promise<LocationData> {
@@ -249,40 +250,18 @@ class LocationService {
   }
 }
 
-// UserProfileStorage for serverless function
+// UserProfileStorage
 class UserProfileStorage {
   public static storeHomeLocation(userId: string, location: LocationData): void {
-    try {
-      if (!userProfiles[userId]) {
-        userProfiles[userId] = {
-          id: userId,
-          homeLocation: null,
-          preferences: {},
-          bucketList: []
-        };
-      }
-      userProfiles[userId].homeLocation = location;
-    } catch (error) {
-      const errorDetails = {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        userId,
-        location: {
-          hasLocation: !!location,
-          city: location?.city,
-          country: location?.country,
-          hasCoordinates: !!(location?.coordinates?.lat && location?.coordinates?.lng)
-        },
-        timestamp: new Date().toISOString(),
-        service: 'UserProfileStorage.storeHomeLocation'
+    if (!userProfiles[userId]) {
+      userProfiles[userId] = {
+        id: userId,
+        homeLocation: null,
+        preferences: {},
+        bucketList: []
       };
-      
-      console.error('Detailed error storing home location:', errorDetails);
-      
-      const enhancedError = new Error(`Failed to store home location for user ${userId}: ${errorDetails.message}`);
-      (enhancedError as any).details = errorDetails;
-      (enhancedError as any).statusCode = 500;
-      throw enhancedError;
     }
+    userProfiles[userId].homeLocation = location;
   }
 
   public static getHomeLocation(userId: string): LocationData | null {
@@ -302,42 +281,74 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  try {
-    // Handle GET /api/location/home/:userId
-    if (req.method === 'GET') {
-      // Extract userId from query or URL path
-      const userId = req.query.userId as string || req.url?.split('/').pop();
+  const { url } = req;
+  console.log('Location API called:', req.method, url);
 
-      if (!userId) {
+  try {
+    // Handle /api/location/validate
+    if (url?.includes('/validate') && req.method === 'POST') {
+      const { location } = req.body;
+
+      if (!location || typeof location !== 'string') {
         return res.status(400).json({
           success: false,
           error: {
-            message: 'User ID is required',
-            code: 'INVALID_USER_ID'
+            message: 'Location input is required and must be a string',
+            code: 'INVALID_INPUT'
           }
         } as ApiResponse<never>);
       }
 
-      const homeLocation = UserProfileStorage.getHomeLocation(userId);
+      const validation: ValidationResult = LocationService.validateLocation(location);
       
-      if (!homeLocation) {
-        return res.status(404).json({
-          success: false,
-          error: {
-            message: 'Home location not found for user',
-            code: 'HOME_LOCATION_NOT_FOUND'
-          }
-        } as ApiResponse<never>);
-      }
-
       return res.json({
         success: true,
-        data: { homeLocation }
-      } as ApiResponse<{ homeLocation: LocationData }>);
+        data: {
+          validation,
+          normalized: validation.isValid ? LocationService.normalizeLocation(location) : null
+        }
+      } as ApiResponse<{ validation: ValidationResult; normalized: string | null }>);
     }
 
-    // Handle POST /api/location/home
-    if (req.method === 'POST') {
+    // Handle /api/location/parse
+    if (url?.includes('/parse') && req.method === 'POST') {
+      const { location } = req.body;
+
+      if (!location || typeof location !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Location input is required and must be a string',
+            code: 'INVALID_INPUT'
+          }
+        } as ApiResponse<never>);
+      }
+
+      const validation = LocationService.validateLocation(location);
+      if (!validation.isValid) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Invalid location format',
+            code: 'INVALID_LOCATION',
+            details: validation.errors
+          }
+        } as ApiResponse<never>);
+      }
+
+      const locationData: LocationData = await LocationService.parseLocationData(location);
+      
+      return res.json({
+        success: true,
+        data: {
+          locationData,
+          validation
+        }
+      } as ApiResponse<{ locationData: LocationData; validation: ValidationResult }>);
+    }
+
+    // Handle /api/location/home POST
+    if (url?.includes('/home') && req.method === 'POST') {
       const { userId, location } = req.body;
 
       if (!userId || typeof userId !== 'string') {
@@ -360,7 +371,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } as ApiResponse<never>);
       }
 
-      // Validate and parse the location
       const validation = LocationService.validateLocation(location);
       if (!validation.isValid) {
         return res.status(400).json({
@@ -374,8 +384,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const locationData: LocationData = await LocationService.parseLocationData(location);
-      
-      // Store the home location
       UserProfileStorage.storeHomeLocation(userId, locationData);
       
       return res.json({
@@ -387,17 +395,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } as ApiResponse<{ homeLocation: LocationData; message: string }>);
     }
 
-    return res.status(405).json({
+    // Handle /api/location/home GET with userId in path
+    if (url?.includes('/home/') && req.method === 'GET') {
+      const userId = url.split('/home/')[1];
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'User ID is required',
+            code: 'INVALID_USER_ID'
+          }
+        } as ApiResponse<never>);
+      }
+
+      const homeLocation = UserProfileStorage.getHomeLocation(userId);
+      
+      if (!homeLocation) {
+        // Return a default location for demo purposes
+        const defaultLocation: LocationData = {
+          city: 'San Francisco',
+          country: 'United States',
+          coordinates: { lat: 37.7749, lng: -122.4194 },
+          airportCode: 'SFO'
+        };
+
+        return res.json({
+          success: true,
+          data: { homeLocation: defaultLocation }
+        } as ApiResponse<{ homeLocation: LocationData }>);
+      }
+
+      return res.json({
+        success: true,
+        data: { homeLocation }
+      } as ApiResponse<{ homeLocation: LocationData }>);
+    }
+
+    // Default 404
+    return res.status(404).json({
       success: false,
       error: {
-        message: 'Method not allowed',
-        code: 'METHOD_NOT_ALLOWED'
+        message: 'Location API endpoint not found',
+        code: 'ENDPOINT_NOT_FOUND',
+        details: { method: req.method, url }
       }
     } as ApiResponse<never>);
 
   } catch (error) {
-    console.error('Home location API error:', error);
-    res.status(500).json({
+    console.error('Location API error:', error);
+    return res.status(500).json({
       success: false,
       error: {
         message: 'Internal server error',
