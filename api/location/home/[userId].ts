@@ -1,22 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-// Types (copied from backend for serverless function)
-interface LocationData {
-  city: string;
-  country: string;
-  coordinates: { lat: number; lng: number };
-  airportCode?: string;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    code: string;
-    details?: any;
-  };
-}
+import { LocationData, ApiResponse } from '../types';
 
 // In-memory storage for demo (in production, use a database)
 const userProfiles: { [userId: string]: any } = {};

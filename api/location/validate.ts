@@ -1,21 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-// Types (copied from backend for serverless function)
-interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    code: string;
-    details?: any;
-  };
-}
+import { ValidationResult, ApiResponse } from '../types';
 
 // Simplified LocationService for serverless function
 class LocationService {
