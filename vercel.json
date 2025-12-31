@@ -20,7 +20,7 @@
   "rewrites": [
     {
       "source": "/api/location/validate",
-      "destination": "/api/validate"
+      "destination": "/api/simple-validate"
     },
     {
       "source": "/api/location/parse",
@@ -33,6 +33,10 @@
     {
       "source": "/api/location/home/(.*)",
       "destination": "/api/home/$1"
+    },
+    {
+      "source": "/api/test",
+      "destination": "/api/test-health"
     }
   ],
   "routes": [

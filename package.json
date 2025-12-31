@@ -2,7 +2,6 @@
   "name": "travel-bucket-list-frontend",
   "version": "1.0.0",
   "description": "Frontend React app for travel bucket list system",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
