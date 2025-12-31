@@ -91,7 +91,7 @@ class LocationService {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  console.log('Location validate API called:', req.method, req.url);
+  console.log('Validate API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');

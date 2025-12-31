@@ -92,10 +92,10 @@ class UserProfileStorage {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  console.log('Location home API called:', req.method, req.url);
+  console.log('Home API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
   if (req.method === 'OPTIONS') {
@@ -103,61 +103,100 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  if (req.method !== 'POST') {
+  try {
+    // Handle GET /api/home/{userId} - extract userId from URL
+    if (req.method === 'GET') {
+      const { url } = req;
+      const userId = url?.split('/').pop(); // Get last part of URL
+
+      if (!userId || userId === 'home') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'User ID is required in URL path',
+            code: 'INVALID_USER_ID'
+          }
+        } as ApiResponse<never>);
+      }
+
+      const homeLocation = UserProfileStorage.getHomeLocation(userId);
+      
+      if (!homeLocation) {
+        // Return a default location for demo purposes
+        const defaultLocation: LocationData = {
+          city: 'San Francisco',
+          country: 'United States',
+          coordinates: { lat: 37.7749, lng: -122.4194 },
+          airportCode: 'SFO'
+        };
+
+        return res.json({
+          success: true,
+          data: { homeLocation: defaultLocation }
+        } as ApiResponse<{ homeLocation: LocationData }>);
+      }
+
+      return res.json({
+        success: true,
+        data: { homeLocation }
+      } as ApiResponse<{ homeLocation: LocationData }>);
+    }
+
+    // Handle POST /api/home
+    if (req.method === 'POST') {
+      const { userId, location } = req.body;
+
+      if (!userId || typeof userId !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'User ID is required and must be a string',
+            code: 'INVALID_USER_ID'
+          }
+        } as ApiResponse<never>);
+      }
+
+      if (!location || typeof location !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Location input is required and must be a string',
+            code: 'INVALID_INPUT'
+          }
+        } as ApiResponse<never>);
+      }
+
+      const validation = LocationService.validateLocation(location);
+      if (!validation.isValid) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Invalid location format',
+            code: 'INVALID_LOCATION',
+            details: validation.errors
+          }
+        } as ApiResponse<never>);
+      }
+
+      const locationData: LocationData = await LocationService.parseLocationData(location);
+      UserProfileStorage.storeHomeLocation(userId, locationData);
+      
+      return res.json({
+        success: true,
+        data: {
+          homeLocation: locationData,
+          message: 'Home location updated successfully'
+        }
+      } as ApiResponse<{ homeLocation: LocationData; message: string }>);
+    }
+
     return res.status(405).json({
       success: false,
       error: {
-        message: 'Method not allowed - use POST',
+        message: 'Method not allowed',
         code: 'METHOD_NOT_ALLOWED'
       }
     } as ApiResponse<never>);
-  }
-
-  try {
-    const { userId, location } = req.body;
-
-    if (!userId || typeof userId !== 'string') {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'User ID is required and must be a string',
-          code: 'INVALID_USER_ID'
-        }
-      } as ApiResponse<never>);
-    }
-
-    if (!location || typeof location !== 'string') {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Location input is required and must be a string',
-          code: 'INVALID_INPUT'
-        }
-      } as ApiResponse<never>);
-    }
-
-    const validation = LocationService.validateLocation(location);
-    if (!validation.isValid) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Invalid location format',
-          code: 'INVALID_LOCATION',
-          details: validation.errors
-        }
-      } as ApiResponse<never>);
-    }
-
-    const locationData: LocationData = await LocationService.parseLocationData(location);
-    UserProfileStorage.storeHomeLocation(userId, locationData);
-    
-    return res.json({
-      success: true,
-      data: {
-        homeLocation: locationData,
-        message: 'Home location updated successfully'
-      }
-    } as ApiResponse<{ homeLocation: LocationData; message: string }>);
 
   } catch (error) {
     console.error('Home location API error:', error);

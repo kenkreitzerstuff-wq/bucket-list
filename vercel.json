@@ -17,11 +17,25 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/api/location/validate",
+      "destination": "/api/validate"
     },
+    {
+      "source": "/api/location/parse",
+      "destination": "/api/parse"
+    },
+    {
+      "source": "/api/location/home",
+      "destination": "/api/home"
+    },
+    {
+      "source": "/api/location/home/(.*)",
+      "destination": "/api/home/$1"
+    }
+  ],
+  "routes": [
     {
       "src": "/(.*)",
       "dest": "/dist/$1"
