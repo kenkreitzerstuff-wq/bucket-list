@@ -1,4 +1,4 @@
-module.exports = function handler(req, res) {
+module.exports = (req, res) => {
   console.log('Health check endpoint called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');

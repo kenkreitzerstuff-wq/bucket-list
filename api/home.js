@@ -66,7 +66,7 @@ class UserProfileStorage {
   }
 }
 
-module.exports = async function handler(req, res) {
+module.exports = async (req, res) => {
   console.log('Home API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');

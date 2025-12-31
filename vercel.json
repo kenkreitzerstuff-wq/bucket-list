@@ -17,6 +17,14 @@
       "destination": "/api/home/$1"
     },
     {
+      "source": "/api/travel-input/store",
+      "destination": "/api/travel-input"
+    },
+    {
+      "source": "/api/travel-input/(.*)",
+      "destination": "/api/travel-input/$1"
+    },
+    {
       "source": "/api/test",
       "destination": "/api/test-health"
     }

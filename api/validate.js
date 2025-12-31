@@ -72,7 +72,7 @@ class LocationService {
   }
 }
 
-module.exports = function handler(req, res) {
+module.exports = (req, res) => {
   console.log('Validate API called:', req.method, req.url);
   
   res.setHeader('Access-Control-Allow-Origin', '*');
